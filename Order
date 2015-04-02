@@ -1,0 +1,41 @@
+import org.joda.time.DateTime;
+
+public class Order {
+	private Sushi sushi;
+	private int preparationDate;
+	private boolean prepared;
+
+	public Order(Sushi sushi) {
+		this.sushi = sushi;
+		prepared = false;
+	}
+
+	public void setOrderToPrepared() {
+		prepared = true;
+	}
+
+	public boolean orderPrepared() {
+		return prepared;
+	}
+
+	public int getDate() {
+		return preparationDate;
+	}
+
+	public void setPreparationDate() {
+		DateTime date = new DateTime();
+		preparationDate = date.secondOfDay().get();
+	}
+
+	public Sushi getSushi() {
+		return sushi;
+	}
+
+	public boolean anotherCustomerTookOrder() {
+		DateTime d = new DateTime();
+		int date = d.secondOfDay().get();
+		if (date - preparationDate > 20)
+			return true;
+		return false;
+	}
+}
