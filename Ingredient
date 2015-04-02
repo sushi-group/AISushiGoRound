@@ -1,0 +1,47 @@
+import org.joda.time.DateTime;
+
+public class Ingredient extends Element {
+
+	private String name;
+	private int orderCoordX;
+	private int orderCoordY;
+	private int orderDate;
+	private final static int orderDuration = 7;
+
+	public Ingredient(String name) {
+		super();
+		this.name = name;
+		this.orderDate = 0;
+	}
+
+	public void setOrderDate() {
+		DateTime date = new DateTime();
+		orderDate = date.secondOfDay().get();
+	}
+
+	public boolean ingredOrderCompleted() {
+		DateTime d = new DateTime();
+		int date = d.secondOfDay().get();
+		if (date - orderDate > orderDuration)
+			return true;
+		return false;
+	}
+
+	public void setOrderCoords(int x, int y) {
+		orderCoordX = x;
+		orderCoordY = y;
+	}
+
+	public int getOrderCoordX() {
+		return orderCoordX;
+	}
+
+	public int getOrderCoordY() {
+		return orderCoordY;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+}
