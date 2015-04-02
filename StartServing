@@ -1,0 +1,27 @@
+import java.awt.AWTException;
+import java.awt.Robot;
+
+
+public class StartServing {
+	public static void main(String[] args) throws AWTException {
+		Robot robot = new Robot();
+		Chef chef = new Chef();
+		chef.getRestaurant().navigateStartGameMenu(robot);
+		chef.initLevel();
+		int level = 1;
+		while ((!chef.getRestaurant().checkForGameOver() || chef
+				.getRestaurant().win()) && level <= 7) {
+			chef.startServing();
+			chef.makeOrders();
+			chef.orderIngredients();
+			chef.clickOnPlates();
+			if (chef.getRestaurant().win() && level < 7) {
+				chef.initLevel();
+				chef.getRestaurant().continueToNextLevel();
+				level++;
+			} else if (chef.getRestaurant().win() && level == 7) {
+				System.out.println("YOU WIN!!!!!!!!!!");
+			}
+		}
+	}
+}
