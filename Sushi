@@ -1,0 +1,36 @@
+import java.util.HashMap;
+
+public class Sushi {
+
+	private String fileName;
+	private String sushiName;
+	private HashMap<Ingredient, Integer> ingredients;
+	private boolean available;
+
+	public Sushi(String fileName, String sushiName) {
+		this.fileName = fileName;
+		this.sushiName = sushiName;
+		ingredients = new HashMap<Ingredient, Integer>();
+		available = true;
+	}
+
+	public void addIngredients(Ingredient ingred, int num) {
+		ingredients.put(ingred, num);
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public String getSushiName() {
+		return sushiName;
+	}
+
+	public HashMap<Ingredient, Integer> getSushiIngredients() {
+		return ingredients;
+	}
+
+	public boolean getAvailability() {
+		return available;
+	}
+}
