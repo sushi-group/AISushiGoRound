@@ -1,0 +1,427 @@
+import java.awt.AWTException;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Chef {
+
+	private HashMap<Ingredient, Integer> ingredQuantity;
+	private ArrayList<Sushi> foodOrders;
+
+	private Sushi onigiri;
+	private Sushi californiaRoll;
+	private Sushi gunkanMaki;
+	private Sushi salmonRoll;
+	private Sushi shrimpSushi;
+	private Sushi unagiRoll;
+	private Sushi dragonRoll;
+	private Sushi combo;
+
+	private Ingredient shrimp;
+	private Ingredient rice;
+	private Ingredient nori;
+	private Ingredient roe;
+	private Ingredient salmon;
+	private Ingredient unagi;
+
+	private Restaurant restaurant;
+
+	private final int maxCustomers = 6;
+
+	private int x;
+	private int y;
+
+	private Order[] currentOrders;
+	private Order[] oldOrders;
+	private Order[] addedOrders;
+	private Order[] removedOrders;
+
+	private HashMap<Ingredient, Boolean> ingredOrdered;
+
+	public Chef() throws AWTException {
+		currentOrders = new Order[maxCustomers];
+		oldOrders = new Order[maxCustomers];
+		addedOrders = new Order[maxCustomers];
+		removedOrders = new Order[maxCustomers];
+		restaurant = new Restaurant();
+		foodOrders = new ArrayList<Sushi>();
+		ingredQuantity = new HashMap<Ingredient, Integer>();
+		ingredOrdered = new HashMap<Ingredient, Boolean>();
+		x = restaurant.getGameRegion().getX();
+		y = restaurant.getGameRegion().getY();
+		setIngredients();
+		setSushis();
+	}
+
+	public void setSushis() {
+		onigiri = new Sushi("onigiri_order.png", "onigiri");
+		onigiri.addIngredients(rice, 2);
+		onigiri.addIngredients(nori, 1);
+		foodOrders.add(onigiri);
+
+		californiaRoll = new Sushi("california_roll_order.png",
+				"californiaRoll");
+		californiaRoll.addIngredients(rice, 1);
+		californiaRoll.addIngredients(nori, 1);
+		californiaRoll.addIngredients(roe, 1);
+		foodOrders.add(californiaRoll);
+
+		gunkanMaki = new Sushi("gunkan_maki_order.png", "gunkanMaki");
+		gunkanMaki.addIngredients(rice, 1);
+		gunkanMaki.addIngredients(nori, 1);
+		gunkanMaki.addIngredients(roe, 2);
+		foodOrders.add(gunkanMaki);
+
+		salmonRoll = new Sushi("salmon_roll_order.png", "salmonRoll");
+		salmonRoll.addIngredients(rice, 1);
+		salmonRoll.addIngredients(nori, 1);
+		salmonRoll.addIngredients(salmon, 2);
+		foodOrders.add(salmonRoll);
+
+		shrimpSushi = new Sushi("shrimp_sushi_order.png", "shrimpSushi");
+		shrimpSushi.addIngredients(shrimp, 2);
+		shrimpSushi.addIngredients(rice, 1);
+		shrimpSushi.addIngredients(nori, 1);
+		foodOrders.add(shrimpSushi);
+
+		unagiRoll = new Sushi("unagi_roll_order.png", "unagiRoll");
+		unagiRoll.addIngredients(rice, 1);
+		unagiRoll.addIngredients(nori, 1);
+		unagiRoll.addIngredients(unagi, 2);
+		foodOrders.add(unagiRoll);
+
+		dragonRoll = new Sushi("dragon_roll_order.png", "dragonRoll");
+		dragonRoll.addIngredients(rice, 2);
+		dragonRoll.addIngredients(nori, 1);
+		dragonRoll.addIngredients(roe, 1);
+		dragonRoll.addIngredients(unagi, 2);
+		foodOrders.add(dragonRoll);
+
+		combo = new Sushi("combo_order.png", "combo");
+		combo.addIngredients(shrimp, 1);
+		combo.addIngredients(rice, 2);
+		combo.addIngredients(nori, 1);
+		combo.addIngredients(roe, 1);
+		combo.addIngredients(salmon, 1);
+		combo.addIngredients(unagi, 1);
+		foodOrders.add(combo);
+	}
+
+	public void setIngredients() {
+		rice = new Ingredient("rice");
+		nori = new Ingredient("nori");
+		roe = new Ingredient("roe");
+		shrimp = new Ingredient("shrimp");
+		salmon = new Ingredient("salmon");
+		unagi = new Ingredient("unagi");
+
+		rice.setCoord(x + 95, y + 335);
+		nori.setCoord(x + 40, y + 385);
+		roe.setCoord(x + 95, y + 385);
+		shrimp.setCoord(x + 40, y + 335);
+		salmon.setCoord(x + 40, y + 425);
+		unagi.setCoord(x + 95, y + 425);
+
+		nori.setOrderCoords(x + 496, y + 281);
+		roe.setOrderCoords(x + 578, y + 281);
+		shrimp.setOrderCoords(x + 496, y + 222);
+		salmon.setOrderCoords(x + 496, y + 329);
+		unagi.setOrderCoords(x + 578, y + 222);
+	}
+
+	public void initIngredQuantity() {
+		ingredQuantity.put(shrimp, 5);
+		ingredQuantity.put(rice, 10);
+		ingredQuantity.put(nori, 10);
+		ingredQuantity.put(roe, 10);
+		ingredQuantity.put(salmon, 5);
+		ingredQuantity.put(unagi, 5);
+	}
+
+	public void initOrders() {
+		for (int i = 0; i < maxCustomers; i++) {
+			currentOrders[i] = null;
+		}
+	}
+
+	public void initIngredOrdered() {
+		ingredOrdered.put(shrimp, false);
+		ingredOrdered.put(rice, false);
+		ingredOrdered.put(nori, false);
+		ingredOrdered.put(roe, false);
+		ingredOrdered.put(salmon, false);
+		ingredOrdered.put(unagi, false);
+	}
+
+	public void initLevel() {
+		initIngredQuantity();
+		initIngredOrdered();
+		initOrders();
+	}
+
+	public void getOrders() throws AWTException {
+		Robot robot = new Robot();
+		int tmp = -1;
+		System.out.print("current : ");
+		for (int i = 0; i < maxCustomers; i++) {
+			Rectangle rect = new Rectangle(x + 100 * i, y + 46, 100, 44);
+			BufferedImage orders = robot.createScreenCapture(rect);
+			for (int j = 0; j < 8; j++) {
+				if (restaurant.findImage(orders, foodOrders.get(j)
+						.getFileName())) {
+					tmp = j;
+					if (!sameOrders(currentOrders[i],
+							new Order(foodOrders.get(j)))) {
+						currentOrders[i] = new Order(foodOrders.get(j));
+					}
+				}
+			}
+			if (tmp == -1)
+				currentOrders[i] = null;
+			tmp = -1;
+			// Print start
+			if (currentOrders[i] != null)
+				System.out.print(currentOrders[i].getSushi().getSushiName()
+						+ " ");
+			else
+				System.out.print("null ");
+		}
+		System.out.println();
+		// Print finish
+	}
+
+	public boolean sameOrders(Order o1, Order o2) {
+		if (o1 != null && o2 != null) {
+			return o1.getSushi().getSushiName() == o2.getSushi().getSushiName();
+		}
+		return false;
+	}
+
+	public void findAddedOrders() {
+		System.out.print("added : ");
+		for (int i = 0; i < 6; i++) {
+			if (currentOrders[i] != null
+					&& !sameOrders(currentOrders[i], oldOrders[i])) {
+				addedOrders[i] = currentOrders[i];
+				// Print start
+				System.out
+						.print(addedOrders[i].getSushi().getSushiName() + " ");
+			} else {
+				System.out.print("null ");
+			}
+		}
+		System.out.println();
+		// Print finish
+	}
+
+	public void findRemovedOrders() {
+		System.out.print("removed : ");
+		for (int i = 0; i < 6; i++) {
+			if (oldOrders[i] != null
+					&& !sameOrders(oldOrders[i], currentOrders[i])) {
+				removedOrders[i] = oldOrders[i];
+				// Print start
+				System.out.print(removedOrders[i].getSushi().getSushiName()
+						+ " ");
+			} else {
+				System.out.print("null ");
+			}
+		}
+		System.out.println();
+		// Print finish
+	}
+
+	public void findOrdersToRemake() {
+		System.out.print("remake : ");
+		for (int i = 0; i < 6; i++) {
+			if (currentOrders[i] != null
+					&& sameOrders(oldOrders[i], currentOrders[i])
+					&& currentOrders[i].orderPrepared() == true
+					&& currentOrders[i].anotherCustomerTookOrder()) {
+				addedOrders[i] = currentOrders[i];
+				// Print start
+				System.out
+						.print(addedOrders[i].getSushi().getSushiName() + " ");
+			} else {
+				System.out.print("null ");
+			}
+		}
+		System.out.println();
+		// Print finish
+	}
+
+	public void updateOldOrders() {
+		System.out.print("old orders : ");
+		for (int i = 0; i < 6; i++) {
+			oldOrders[i] = currentOrders[i];
+			if (oldOrders[i] != null)
+				System.out.print(oldOrders[i].getSushi().getSushiName() + " ");
+			else
+				System.out.print("null ");
+		}
+		System.out.println();
+	}
+
+	public void startServing() throws AWTException {
+		updateOldOrders();
+		getOrders();
+		findAddedOrders();
+		findRemovedOrders();
+		findOrdersToRemake();
+		System.out.println("--------------------------------------------");
+	}
+
+	public void diminishIngredQuantity(Ingredient ingred) {
+		ingredQuantity.put(ingred, ingredQuantity.get(ingred) - 1);
+	}
+
+	public void makeOrder(Sushi sushi) throws AWTException {
+		Robot robot = new Robot();
+		HashMap<Ingredient, Integer> ingredients = sushi.getSushiIngredients();
+		for (Ingredient ingred : ingredients.keySet()) {
+			robot.mouseMove(ingred.getX(), ingred.getY());
+			if (ingredients.get(ingred) == 2) {
+				Restaurant.leftClick(robot, 10);
+				diminishIngredQuantity(ingred);
+				Restaurant.leftClick(robot, 10);
+				diminishIngredQuantity(ingred);
+			} else {
+				Restaurant.leftClick(robot, 10);
+				diminishIngredQuantity(ingred);
+			}
+		}
+		robot.mouseMove(restaurant.getMat().getX(), restaurant.getMat().getY());
+		Restaurant.leftClick(robot, 100);
+	}
+
+	public boolean sufficientIngred(Sushi s) {
+		HashMap<Ingredient, Integer> sushiIngredients = s.getSushiIngredients();
+		for (Ingredient i : sushiIngredients.keySet()) {
+			if (ingredOrdered.get(i) && i.ingredOrderCompleted()) {
+				updateIngredQuantity(i);
+				ingredOrdered.put(i, false);
+			} else if (ingredQuantity.get(i) < sushiIngredients.get(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void makeOrders() throws AWTException {
+		Robot robot = new Robot();
+		for (int i = maxCustomers - 1; i > -1; i--) {
+			if (currentOrders[i] == null)
+				addedOrders[i] = null;
+			if (addedOrders[i] != null && restaurant.checkMat()
+					&& sufficientIngred(addedOrders[i].getSushi())) {
+				System.out.println(i + " "
+						+ addedOrders[i].getSushi().getSushiName());
+				System.out.println(i + " " + currentOrders[i]);
+				makeOrder(addedOrders[i].getSushi());
+				currentOrders[i].setPreparationDate();
+				currentOrders[i].setOrderToPrepared();
+				if (i != 0)
+					robot.delay(800);
+				addedOrders[i] = null;
+			}
+		}
+	}
+
+	public boolean enoughCash(String s) throws AWTException {
+		Robot robot = new Robot();
+		Rectangle rect = new Rectangle(x, y, 640, 480);
+		BufferedImage game = robot.createScreenCapture(rect);
+		if (restaurant.findImage(game, s))
+			return false;
+		return true;
+	}
+
+	public void orderIngredientsSteps(Ingredient i) throws AWTException {
+		Robot robot = new Robot();
+		String ingred = i.getName();
+		robot.mouseMove(restaurant.getPhoneButton().getX(), restaurant
+				.getPhoneButton().getY());
+		Restaurant.leftClick(robot, 100);
+		robot.mouseMove(restaurant.getToppingButton().getX(), restaurant
+				.getToppingButton().getY());
+		Restaurant.leftClick(robot, 100);
+		if (enoughCash("cant_afford_" + ingred + ".png")) {
+			robot.mouseMove(i.getOrderCoordX(), i.getOrderCoordY());
+			Restaurant.leftClick(robot, 100);
+			robot.mouseMove(restaurant.getNormalDeliveryButton().getX(),
+					restaurant.getNormalDeliveryButton().getY());
+			Restaurant.leftClick(robot, 100);
+			i.setOrderDate();
+			ingredOrdered.put(i, true);
+		} else {
+			robot.mouseMove(restaurant.getCancelPhoneButton().getX(),
+					restaurant.getCancelPhoneButton().getY());
+			Restaurant.leftClick(robot, 100);
+		}
+	}
+
+	public void orderRiceSteps() throws AWTException {
+		Robot robot = new Robot();
+		robot.mouseMove(restaurant.getPhoneButton().getX(), restaurant
+				.getPhoneButton().getY());
+		Restaurant.leftClick(robot, 100);
+		robot.mouseMove(restaurant.getRice1Button().getX(), restaurant
+				.getRice1Button().getY());
+		Restaurant.leftClick(robot, 100);
+		if (enoughCash("cant_afford_rice.png")) {
+			robot.mouseMove(restaurant.getRice2Button().getX(), restaurant
+					.getRice2Button().getY());
+			Restaurant.leftClick(robot, 100);
+			robot.mouseMove(restaurant.getNormalDeliveryButton().getX(),
+					restaurant.getNormalDeliveryButton().getY());
+			Restaurant.leftClick(robot, 100);
+			rice.setOrderDate();
+			ingredOrdered.put(rice, true);
+		} else {
+			robot.mouseMove(restaurant.getCancelPhoneButton().getX(),
+					restaurant.getCancelPhoneButton().getY());
+			Restaurant.leftClick(robot, 100);
+		}
+	}
+
+	public void updateIngredQuantity(Ingredient i) {
+		String ingred = i.getName();
+		if (ingred == "rice" || ingred == "nori" || ingred == "roe") {
+			ingredQuantity.put(i, ingredQuantity.get(i) + 10);
+		} else {
+			ingredQuantity.put(i, ingredQuantity.get(i) + 5);
+		}
+	}
+
+	public void orderIngredients() throws AWTException {
+		for (Ingredient i : ingredQuantity.keySet()) {
+			String ingred = i.getName();
+			if (ingred == "rice" && ingredQuantity.get(i) < 4
+					&& !ingredOrdered.get(i)) {
+				orderRiceSteps();
+			} else if (ingred != "rice" && ingredQuantity.get(i) < 4
+					&& !ingredOrdered.get(i)) {
+				orderIngredientsSteps(i);
+			}
+		}
+	}
+
+	public void clickOnPlates() throws AWTException {
+		Robot robot = new Robot();
+		for (int i = 0; i < 6; i++) {
+			if (currentOrders[i] == null) {
+				int[] coords = {
+						83 + restaurant.getGameRegion().getX() + (i * 101),
+						restaurant.getGameRegion().getY() + 203 };
+				robot.mouseMove(coords[0], coords[1]);
+				Restaurant.leftClick(robot, 10);
+			}
+		}
+	}
+
+	public Restaurant getRestaurant() {
+		return restaurant;
+	}
+}
