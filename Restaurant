@@ -1,0 +1,238 @@
+import java.awt.AWTException;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.PixelGrabber;
+import java.awt.image.RasterFormatException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
+
+public class Restaurant {
+
+	private Element gameRegion;
+	private Element matRegion;
+	private Element phoneButton;
+	private Element cancelPhoneButton;
+	private Element toppingButton;
+	private Element rice1Button;
+	private Element rice2Button;
+	private Element normalDeliveryButton;
+	private Element mat;
+
+	public Restaurant() throws AWTException {
+		setElementCoords();
+	}
+
+	public void setElementCoords() throws AWTException {
+		gameRegion = new Element();
+		matRegion = new Element();
+		phoneButton = new Element();
+		cancelPhoneButton = new Element();
+		toppingButton = new Element();
+		rice1Button = new Element();
+		rice2Button = new Element();
+		normalDeliveryButton = new Element();
+		mat = new Element();
+		setGameRegion();
+		matRegion.setCoord(gameRegion.getX() + 129, gameRegion.getY() + 308);
+		phoneButton.setCoord(gameRegion.getX() + 560, gameRegion.getY() + 360);
+		cancelPhoneButton.setCoord(gameRegion.getX() + 585,
+				gameRegion.getY() + 335);
+		toppingButton
+				.setCoord(gameRegion.getX() + 513, gameRegion.getY() + 269);
+		rice1Button.setCoord(gameRegion.getX() + 543, gameRegion.getY() + 294);
+		rice2Button.setCoord(gameRegion.getX() + 545, gameRegion.getY() + 269);
+		normalDeliveryButton.setCoord(gameRegion.getX() + 495,
+				gameRegion.getY() + 293);
+		mat.setCoord(gameRegion.getX() + 190, gameRegion.getY() + 375);
+	}
+
+	public static void leftClick(Robot robot, int delay) {
+		robot.mousePress(InputEvent.BUTTON1_MASK);
+		robot.delay(delay);
+		robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		robot.delay(delay);
+	}
+
+	public void navigateStartGameMenu(Robot robot) {
+		robot.mouseMove(this.gameRegion.getX() + 311,
+				this.gameRegion.getY() + 208);
+		leftClick(robot, 200);
+		robot.mouseMove(this.gameRegion.getX() + 578,
+				this.gameRegion.getY() + 453);
+		leftClick(robot, 200);
+		robot.mouseMove(this.gameRegion.getX() + 310,
+				this.gameRegion.getY() + 383);
+		leftClick(robot, 200);
+	}
+
+	boolean bufferedImagesEqual(BufferedImage img1, BufferedImage img2) {
+		if (img1.getWidth() == img2.getWidth()
+				&& img1.getHeight() == img2.getHeight()) {
+			for (int x = 0; x < img1.getWidth(); x++) {
+				for (int y = 0; y < img1.getHeight(); y++) {
+					if (img1.getRGB(x, y) != img2.getRGB(x, y))
+						return false;
+				}
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
+
+	public void setGameRegion() throws AWTException {
+		Robot robot = new Robot();
+		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle rectangle = new Rectangle(resolution);
+		BufferedImage fullScreen = robot.createScreenCapture(rectangle);
+		BufferedImage topRightCorner = new BufferedImage(50, 54,
+				BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(50, 54,
+				BufferedImage.TYPE_INT_ARGB);
+		try {
+			topRightCorner = ImageIO.read(new File("top_right_corner.png"));
+		} catch (IOException e) {
+		}
+		for (int x = 0; x < fullScreen.getWidth(); x++) {
+			for (int y = 0; y < fullScreen.getHeight(); y++) {
+				if (gameRegion.getX() == 0 && gameRegion.getY() == 0) {
+					try {
+						img = fullScreen.getSubimage(x, y, 50, 54);
+						if (bufferedImagesEqual(img, topRightCorner)) {
+							gameRegion.setCoord(x - 588, y);
+						}
+					} catch (RasterFormatException r) {
+					}
+				}
+			}
+		}
+		System.out.println(gameRegion.getX() + " "
+				+ gameRegion.getY());
+	}
+
+	public int[] pixels(BufferedImage image) {
+		PixelGrabber grabber;
+		int[] pixels = new int[image.getWidth() * image.getHeight()];
+		try {
+			grabber = new PixelGrabber(image, 0, 0, image.getWidth(),
+					image.getHeight(), pixels, 0, image.getWidth());
+			grabber.grabPixels(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return pixels;
+	}
+
+	public boolean findImage(BufferedImage image1, String img) {
+		BufferedImage image2 = null;
+		try {
+			image2 = ImageIO.read(new File(img));
+		} catch (IOException e) {
+		}
+		int[] a = pixels(image1);
+		int[] b = pixels(image2);
+		return compare(a, b);
+	}
+
+	public boolean compare(int[] a, int[] b) {
+		Arrays.sort(a);
+		for (int i : b) {
+			if (Arrays.binarySearch(a, i) < 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean checkMat() throws AWTException {
+		Robot robot = new Robot();
+		Rectangle rectangle = new Rectangle(gameRegion.getX() + 129,
+				gameRegion.getY() + 308, 185, 154);
+		BufferedImage matRegion = robot.createScreenCapture(rectangle);
+		BufferedImage mat = new BufferedImage(185, 154,
+				BufferedImage.TYPE_INT_ARGB);
+		try {
+			mat = ImageIO.read(new File("clear_mat.png"));
+		} catch (IOException e) {
+		}
+		if (bufferedImagesEqual(matRegion, mat))
+			return true;
+		return false;
+	}
+
+	// Fin de Jeu et Passage prochain Level
+
+	public boolean checkForGameOver() throws AWTException {
+		Robot robot = new Robot();
+		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle rectangle = new Rectangle(resolution);
+		BufferedImage fullScreen = robot.createScreenCapture(rectangle);
+		if (findImage(fullScreen, "you_win.png")
+				|| findImage(fullScreen, "you_failed.png")) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean win() throws AWTException {
+		Robot robot = new Robot();
+		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle rectangle = new Rectangle(resolution);
+		BufferedImage fullScreen = robot.createScreenCapture(rectangle);
+		if (findImage(fullScreen, "you_win.png")) {
+			return true;
+		}
+		return false;
+	}
+
+	public void continueToNextLevel() throws AWTException {
+		Robot robot = new Robot();
+		robot.delay(3000);
+		robot.mouseMove(gameRegion.getX() + 310,
+				gameRegion.getY() + 383);
+		leftClick(robot, 200);
+		leftClick(robot, 200);
+	}
+
+	public Element getGameRegion() {
+		return gameRegion;
+	}
+
+	public Element getMatRegion() {
+		return matRegion;
+	}
+
+	public Element getPhoneButton() {
+		return phoneButton;
+	}
+
+	public Element getCancelPhoneButton() {
+		return cancelPhoneButton;
+	}
+
+	public Element getToppingButton() {
+		return toppingButton;
+	}
+
+	public Element getRice1Button() {
+		return rice1Button;
+	}
+
+	public Element getRice2Button() {
+		return rice2Button;
+	}
+
+	public Element getNormalDeliveryButton() {
+		return normalDeliveryButton;
+	}
+
+	public Element getMat() {
+		return mat;
+	}
+}
