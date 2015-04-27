@@ -1,5 +1,12 @@
 import java.util.HashMap;
 
+/**
+ * Sushi.java Purpose: Represent a sushi
+ * 
+ * @author Ismail Boukili, Dimitrios Christaras-Papageorgiou, Hamza Gounteti,
+ *         Cheikh Ndiaye
+ * @version 1.0 27/04/2015
+ */
 public class Sushi {
 
 	private String fileName;
@@ -14,22 +21,48 @@ public class Sushi {
 		available = true;
 	}
 
+	/**
+	 * Add the ingredients needed to create this sushi
+	 * 
+	 * @param ingred
+	 * @param num
+	 */
 	public void addIngredients(Ingredient ingred, int num) {
 		ingredients.put(ingred, num);
 	}
 
+	/**
+	 * Get the file name of this sushi
+	 * 
+	 * @return fileName
+	 */
 	public String getFileName() {
 		return fileName;
 	}
 
+	/**
+	 * Get the sushi's name
+	 * 
+	 * @return sushiName
+	 */
 	public String getSushiName() {
 		return sushiName;
 	}
 
+	/**
+	 * Get the ingredients of this sushi
+	 * 
+	 * @return ingredients
+	 */
 	public HashMap<Ingredient, Integer> getSushiIngredients() {
 		return ingredients;
 	}
 
+	/**
+	 * True if this sushi can be created in a particular moment
+	 * 
+	 * @return available
+	 */
 	public boolean getAvailability() {
 		return available;
 	}
