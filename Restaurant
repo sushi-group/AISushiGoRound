@@ -1,4 +1,3 @@
-import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -12,6 +11,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
 
+/**
+ * Restaurant.java Purpose: Represent all the coordinates of important regions
+ * included in the game
+ * 
+ * @author Ismail Boukili, Dimitrios Christaras-Papageorgiou, Hamza Gounteti,
+ *         Cheikh Ndiaye
+ * @version 1.0 27/04/2015
+ */
 public class Restaurant {
 
 	private Element gameRegion;
@@ -24,53 +31,17 @@ public class Restaurant {
 	private Element normalDeliveryButton;
 	private Element mat;
 
-	public Restaurant() throws AWTException {
-		setElementCoords();
+	public Restaurant(Robot robot) {
+		setElementCoords(robot);
 	}
 
-	public void setElementCoords() throws AWTException {
-		gameRegion = new Element();
-		matRegion = new Element();
-		phoneButton = new Element();
-		cancelPhoneButton = new Element();
-		toppingButton = new Element();
-		rice1Button = new Element();
-		rice2Button = new Element();
-		normalDeliveryButton = new Element();
-		mat = new Element();
-		setGameRegion();
-		matRegion.setCoord(gameRegion.getX() + 129, gameRegion.getY() + 308);
-		phoneButton.setCoord(gameRegion.getX() + 560, gameRegion.getY() + 360);
-		cancelPhoneButton.setCoord(gameRegion.getX() + 585,
-				gameRegion.getY() + 335);
-		toppingButton
-				.setCoord(gameRegion.getX() + 513, gameRegion.getY() + 269);
-		rice1Button.setCoord(gameRegion.getX() + 543, gameRegion.getY() + 294);
-		rice2Button.setCoord(gameRegion.getX() + 545, gameRegion.getY() + 269);
-		normalDeliveryButton.setCoord(gameRegion.getX() + 495,
-				gameRegion.getY() + 293);
-		mat.setCoord(gameRegion.getX() + 190, gameRegion.getY() + 375);
-	}
-
-	public static void leftClick(Robot robot, int delay) {
-		robot.mousePress(InputEvent.BUTTON1_MASK);
-		robot.delay(delay);
-		robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		robot.delay(delay);
-	}
-
-	public void navigateStartGameMenu(Robot robot) {
-		robot.mouseMove(this.gameRegion.getX() + 311,
-				this.gameRegion.getY() + 208);
-		leftClick(robot, 200);
-		robot.mouseMove(this.gameRegion.getX() + 578,
-				this.gameRegion.getY() + 453);
-		leftClick(robot, 200);
-		robot.mouseMove(this.gameRegion.getX() + 310,
-				this.gameRegion.getY() + 383);
-		leftClick(robot, 200);
-	}
-
+	/**
+	 * Compares two buffered images and finds if they are equal
+	 * 
+	 * @param img1
+	 * @param img2
+	 * @return true if they are equal
+	 */
 	boolean bufferedImagesEqual(BufferedImage img1, BufferedImage img2) {
 		if (img1.getWidth() == img2.getWidth()
 				&& img1.getHeight() == img2.getHeight()) {
@@ -86,8 +57,66 @@ public class Restaurant {
 		return true;
 	}
 
-	public void setGameRegion() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Returns an array of all the pixels of a buffered image
+	 * 
+	 * @param image
+	 * @return an array of pixels
+	 */
+	public int[] pixels(BufferedImage image) {
+		PixelGrabber grabber;
+		int[] pixels = new int[image.getWidth() * image.getHeight()];
+		try {
+			grabber = new PixelGrabber(image, 0, 0, image.getWidth(),
+					image.getHeight(), pixels, 0, image.getWidth());
+			grabber.grabPixels(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return pixels;
+	}
+
+	/**
+	 * Compares two arrays of pixels a and b
+	 * 
+	 * @param a
+	 * @param b
+	 * @return true if all the pixels of b are included in a
+	 */
+	public boolean compare(int[] a, int[] b) {
+		Arrays.sort(a);
+		for (int i : b) {
+			if (Arrays.binarySearch(a, i) < 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Finds if a given image exists in another image
+	 * 
+	 * @param image1
+	 * @param img
+	 * @return true if the given image is included in the given buffered image
+	 */
+	public boolean findImage(BufferedImage image1, String img) {
+		BufferedImage image2 = null;
+		try {
+			image2 = ImageIO.read(new File(img));
+		} catch (IOException e) {
+		}
+		int[] a = pixels(image1);
+		int[] b = pixels(image2);
+		return compare(a, b);
+	}
+
+	/**
+	 * Set the coordinates of the game region (gameRegion is used to find all
+	 * the other coordinates)
+	 * 
+	 */
+	public void setGameRegion(Robot robot) {
 		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle rectangle = new Rectangle(resolution);
 		BufferedImage fullScreen = robot.createScreenCapture(rectangle);
@@ -112,46 +141,43 @@ public class Restaurant {
 				}
 			}
 		}
-		System.out.println(gameRegion.getX() + " "
-				+ gameRegion.getY());
+		System.out.println(gameRegion.getX() + " " + gameRegion.getY());
 	}
 
-	public int[] pixels(BufferedImage image) {
-		PixelGrabber grabber;
-		int[] pixels = new int[image.getWidth() * image.getHeight()];
-		try {
-			grabber = new PixelGrabber(image, 0, 0, image.getWidth(),
-					image.getHeight(), pixels, 0, image.getWidth());
-			grabber.grabPixels(0);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return pixels;
+	/**
+	 * Set all the coordinates
+	 * 
+	 */
+	public void setElementCoords(Robot robot) {
+		gameRegion = new Element();
+		matRegion = new Element();
+		phoneButton = new Element();
+		cancelPhoneButton = new Element();
+		toppingButton = new Element();
+		rice1Button = new Element();
+		rice2Button = new Element();
+		normalDeliveryButton = new Element();
+		mat = new Element();
+		setGameRegion(robot);
+		matRegion.setCoord(gameRegion.getX() + 129, gameRegion.getY() + 308);
+		phoneButton.setCoord(gameRegion.getX() + 560, gameRegion.getY() + 360);
+		cancelPhoneButton.setCoord(gameRegion.getX() + 585,
+				gameRegion.getY() + 335);
+		toppingButton
+				.setCoord(gameRegion.getX() + 513, gameRegion.getY() + 269);
+		rice1Button.setCoord(gameRegion.getX() + 543, gameRegion.getY() + 294);
+		rice2Button.setCoord(gameRegion.getX() + 545, gameRegion.getY() + 269);
+		normalDeliveryButton.setCoord(gameRegion.getX() + 495,
+				gameRegion.getY() + 293);
+		mat.setCoord(gameRegion.getX() + 190, gameRegion.getY() + 375);
 	}
 
-	public boolean findImage(BufferedImage image1, String img) {
-		BufferedImage image2 = null;
-		try {
-			image2 = ImageIO.read(new File(img));
-		} catch (IOException e) {
-		}
-		int[] a = pixels(image1);
-		int[] b = pixels(image2);
-		return compare(a, b);
-	}
-
-	public boolean compare(int[] a, int[] b) {
-		Arrays.sort(a);
-		for (int i : b) {
-			if (Arrays.binarySearch(a, i) < 0) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public boolean checkMat() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Checks if the mat is empty
+	 * 
+	 * @return true if mat is empty
+	 */
+	public boolean checkMat(Robot robot) {
 		Rectangle rectangle = new Rectangle(gameRegion.getX() + 129,
 				gameRegion.getY() + 308, 185, 154);
 		BufferedImage matRegion = robot.createScreenCapture(rectangle);
@@ -166,10 +192,39 @@ public class Restaurant {
 		return false;
 	}
 
-	// Fin de Jeu et Passage prochain Level
+	/**
+	 * Do a left click by choosing its velocity
+	 * 
+	 * @param robot
+	 * @param delay
+	 */
+	public static void leftClick(Robot robot, int delay) {
+		robot.mousePress(InputEvent.BUTTON1_MASK);
+		robot.delay(delay);
+		robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		robot.delay(delay);
+	}
 
-	public boolean checkForGameOver() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Start the game
+	 * 
+	 * @param robot
+	 */
+	public void navigateStartGameMenu(Robot robot) {
+		robot.mouseMove(gameRegion.getX() + 311, gameRegion.getY() + 208);
+		leftClick(robot, 200);
+		robot.mouseMove(gameRegion.getX() + 578, gameRegion.getY() + 453);
+		leftClick(robot, 200);
+		robot.mouseMove(gameRegion.getX() + 310, gameRegion.getY() + 383);
+		leftClick(robot, 200);
+	}
+
+	/**
+	 * Check if the level has been won or lost
+	 * 
+	 * @return true if the level has been won or lost
+	 */
+	public boolean checkForGameOver(Robot robot) {
 		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle rectangle = new Rectangle(resolution);
 		BufferedImage fullScreen = robot.createScreenCapture(rectangle);
@@ -180,8 +235,12 @@ public class Restaurant {
 		return false;
 	}
 
-	public boolean win() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Checks if the level has been won
+	 * 
+	 * @return true if the level has been won
+	 */
+	public boolean win(Robot robot) {
 		Dimension resolution = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle rectangle = new Rectangle(resolution);
 		BufferedImage fullScreen = robot.createScreenCapture(rectangle);
@@ -191,47 +250,95 @@ public class Restaurant {
 		return false;
 	}
 
-	public void continueToNextLevel() throws AWTException {
-		Robot robot = new Robot();
-		robot.delay(3000);
-		robot.mouseMove(gameRegion.getX() + 310,
-				gameRegion.getY() + 383);
-		leftClick(robot, 200);
-		leftClick(robot, 200);
+	/**
+	 * Continues to next level
+	 */
+	public void continueToNextLevel(Robot robot) {
+		robot.mouseMove(gameRegion.getX() + 311, gameRegion.getY() + 208);
+		leftClick(robot, 300);
+		robot.delay(2000);
+		robot.mouseMove(gameRegion.getX() + 310, gameRegion.getY() + 383);
+		leftClick(robot, 300);
+		leftClick(robot, 300);
 	}
 
+	/**
+	 * Get the region of the game
+	 * 
+	 * @return gameRegion
+	 */
 	public Element getGameRegion() {
 		return gameRegion;
 	}
 
+	/**
+	 * Get the region of the mat
+	 * 
+	 * @return matRegion
+	 */
 	public Element getMatRegion() {
 		return matRegion;
 	}
 
+	/**
+	 * Get the coordinates of the phone
+	 * 
+	 * @return phoneButton
+	 */
 	public Element getPhoneButton() {
 		return phoneButton;
 	}
 
+	/**
+	 * Get the coordinates that cancel the phone
+	 * 
+	 * @return cancelPhoneButton
+	 */
 	public Element getCancelPhoneButton() {
 		return cancelPhoneButton;
 	}
 
+	/**
+	 * Get the topping button coordinates
+	 * 
+	 * @return toppingButton
+	 */
 	public Element getToppingButton() {
 		return toppingButton;
 	}
 
+	/**
+	 * Get the rice1 button coordinates
+	 * 
+	 * @return rice1Button
+	 */
 	public Element getRice1Button() {
 		return rice1Button;
 	}
 
+	/**
+	 * Get the rice2 button coordinates
+	 * 
+	 * @return rice2Button
+	 */
 	public Element getRice2Button() {
 		return rice2Button;
 	}
 
+	/**
+	 * Get the normal delivery button coordinates
+	 * 
+	 * @return normalDeliveryButton
+	 */
 	public Element getNormalDeliveryButton() {
 		return normalDeliveryButton;
 	}
 
+	/**
+	 * Get the mat coordinates
+	 * 
+	 * @return mat
+	 */
 	public Element getMat() {
 		return mat;
 	}
