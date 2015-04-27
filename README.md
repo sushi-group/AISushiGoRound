@@ -27,7 +27,7 @@ This is the class that contains the main method and that uses all the other clas
 **Dimitrios Christaras-Papageorgiou** </br>
 Email:  dimitris_xx@hotmail.com</br>
 **Cheikh Ndiaye** </br>
-Email:  </br>
+Email:  mr-tagabunt@hotmail.fr</br>
 **Ismail Boukili** </br>
 Email:  </br>
 **Hamza Gounteti** </br>
