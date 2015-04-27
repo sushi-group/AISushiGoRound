@@ -1,5 +1,12 @@
 import org.joda.time.DateTime;
 
+/**
+ * Order.java Purpose: Represent the orders
+ * 
+ * @author Ismail Boukili, Dimitrios Christaras-Papageorgiou, Hamza Gounteti,
+ *         Cheikh Ndiaye
+ * @version 1.0 27/04/2015
+ */
 public class Order {
 	private Sushi sushi;
 	private int preparationDate;
@@ -10,32 +17,50 @@ public class Order {
 		prepared = false;
 	}
 
+	/**
+	 * Set prepared to true if the order has been prepared
+	 */
 	public void setOrderToPrepared() {
 		prepared = true;
 	}
 
-	public boolean orderPrepared() {
-		return prepared;
-	}
-
-	public int getDate() {
-		return preparationDate;
-	}
-
+	/**
+	 * Set the preparation date when the order has been prepared
+	 */
 	public void setPreparationDate() {
 		DateTime date = new DateTime();
 		preparationDate = date.secondOfDay().get();
 	}
 
-	public Sushi getSushi() {
-		return sushi;
-	}
-
-	public boolean anotherCustomerTookOrder() {
+	/**
+	 * Finds if the difference between the actual date and the preparation date
+	 * of the order is more then 20 seconds
+	 * 
+	 * @return true if time difference more than 20 seconds
+	 */
+	public boolean timeSuperior20() {
 		DateTime d = new DateTime();
 		int date = d.secondOfDay().get();
 		if (date - preparationDate > 20)
 			return true;
 		return false;
+	}
+
+	/**
+	 * Get the name of the sushi
+	 * 
+	 * @return sushi
+	 */
+	public Sushi getSushi() {
+		return sushi;
+	}
+
+	/**
+	 * Return if the order has been prepared or not
+	 * 
+	 * @return prepared
+	 */
+	public boolean getPrepared() {
+		return prepared;
 	}
 }
