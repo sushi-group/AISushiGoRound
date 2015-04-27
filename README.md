@@ -14,11 +14,13 @@ This is simple class that is used to represent an element with two coordinates.
 ### Ingredient
 This class represents the ingredients that we use to create a sushi. For an ingredient we need its order coordinates, its name and its order date.
 ### Sushi
-This class representes all the sushis. Pictures of these sushis are saved in the project, so we need an attribute String that has the same name as the picture. Also, there a string with the exact name of the sushi and an HashMap with its ingredients. Finally, there is boolean that is needed to know if we have enough ingredients to create this sushi.
+This class represents all the sushis. Pictures of these sushis are saved in the project, so we need an attribute String that has the same name as the picture. Also, there a string with the exact name of the sushi and an HashMap with its ingredients. Finally, there is boolean that is needed to know if we have enough ingredients to create this sushi.
 ### Order
+This class represents the orders of the customers. An order is about a sushi, so there is an attribute sushi, its preparation date and a boolean that is used to know if this order has been realised.
 ### Restaurant
+This class is mainly used to represent all the important coordinates of the game. has also other important methods, such as the method leftClick.
 ### Chef
-
+This class implements all the actions that we do : get the orders of the customers, make the orders, take the plates and order ingredients.
 ## CONTACTS
 **Dimitrios Christaras-Papageorgiou** </br>
 Email:  dimitris_xx@hotmail.com</br>
