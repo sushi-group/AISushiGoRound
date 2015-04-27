@@ -1,26 +1,33 @@
 import java.awt.AWTException;
 import java.awt.Robot;
 
-
+/**
+ * StartServing.java Purpose: Start the game
+ * 
+ * @author Ismail Boukili, Dimitrios Christaras-Papageorgiou, Hamza Gounteti,
+ *         Cheikh Ndiaye
+ * @version 1.0 27/04/2015
+ */
 public class StartServing {
 	public static void main(String[] args) throws AWTException {
 		Robot robot = new Robot();
-		Chef chef = new Chef();
+		Chef chef = new Chef(robot);
 		chef.getRestaurant().navigateStartGameMenu(robot);
 		chef.initLevel();
 		int level = 1;
-		while ((!chef.getRestaurant().checkForGameOver() || chef
-				.getRestaurant().win()) && level <= 7) {
-			chef.startServing();
-			chef.makeOrders();
-			chef.orderIngredients();
-			chef.clickOnPlates();
-			if (chef.getRestaurant().win() && level < 7) {
+		while ((!chef.getRestaurant().checkForGameOver(robot) || chef
+				.getRestaurant().win(robot)) && level <= 7) {
+			chef.setOrders(robot);
+			chef.makeOrders(robot);
+			chef.orderIngredients(robot);
+			chef.clickOnPlates(robot);
+			if (chef.getRestaurant().win(robot) && level < 7) {
 				chef.initLevel();
-				chef.getRestaurant().continueToNextLevel();
+				chef.getRestaurant().continueToNextLevel(robot);
 				level++;
-			} else if (chef.getRestaurant().win() && level == 7) {
+			} else if (chef.getRestaurant().win(robot) && level == 7) {
 				System.out.println("YOU WIN!!!!!!!!!!");
+				level++;
 			}
 		}
 	}
