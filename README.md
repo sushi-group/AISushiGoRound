@@ -1,4 +1,4 @@
-# Artificial Intelligence for the game Sushi Go Round Version 1.0 19/04/2015
+# Artificial Intelligence for the game Sushi Go Round Version 1.0 27/04/2015
 
 ## GENERAL USAGE NOTES
 
