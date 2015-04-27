@@ -5,6 +5,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Chef.java Purpose: Represent all the actions of the chef
+ * 
+ * @author Ismail Boukili, Dimitrios Christaras-Papageorgiou, Hamza Gounteti,
+ *         Cheikh Ndiaye
+ * @version 1.0 27/04/2015
+ */
 public class Chef {
 
 	private HashMap<Ingredient, Integer> ingredQuantity;
@@ -30,6 +37,7 @@ public class Chef {
 
 	private final int maxCustomers = 6;
 
+	// The game region coordinates
 	private int x;
 	private int y;
 
@@ -40,12 +48,12 @@ public class Chef {
 
 	private HashMap<Ingredient, Boolean> ingredOrdered;
 
-	public Chef() throws AWTException {
+	public Chef(Robot robot) {
 		currentOrders = new Order[maxCustomers];
 		oldOrders = new Order[maxCustomers];
 		addedOrders = new Order[maxCustomers];
 		removedOrders = new Order[maxCustomers];
-		restaurant = new Restaurant();
+		restaurant = new Restaurant(robot);
 		foodOrders = new ArrayList<Sushi>();
 		ingredQuantity = new HashMap<Ingredient, Integer>();
 		ingredOrdered = new HashMap<Ingredient, Boolean>();
@@ -55,6 +63,9 @@ public class Chef {
 		setSushis();
 	}
 
+	/**
+	 * Set all the sushis
+	 */
 	public void setSushis() {
 		onigiri = new Sushi("onigiri_order.png", "onigiri");
 		onigiri.addIngredients(rice, 2);
@@ -109,6 +120,9 @@ public class Chef {
 		foodOrders.add(combo);
 	}
 
+	/**
+	 * Set all the ingredients' coordinates
+	 */
 	public void setIngredients() {
 		rice = new Ingredient("rice");
 		nori = new Ingredient("nori");
@@ -131,6 +145,9 @@ public class Chef {
 		unagi.setOrderCoords(x + 578, y + 222);
 	}
 
+	/**
+	 * Initialize the ingredients' quantity
+	 */
 	public void initIngredQuantity() {
 		ingredQuantity.put(shrimp, 5);
 		ingredQuantity.put(rice, 10);
@@ -140,12 +157,18 @@ public class Chef {
 		ingredQuantity.put(unagi, 5);
 	}
 
+	/**
+	 * Initialize the current orders
+	 */
 	public void initOrders() {
 		for (int i = 0; i < maxCustomers; i++) {
 			currentOrders[i] = null;
 		}
 	}
 
+	/**
+	 * Initialize to false that none of the ingredients has been ordered
+	 */
 	public void initIngredOrdered() {
 		ingredOrdered.put(shrimp, false);
 		ingredOrdered.put(rice, false);
@@ -155,14 +178,35 @@ public class Chef {
 		ingredOrdered.put(unagi, false);
 	}
 
+	/**
+	 * Initialize the level
+	 */
 	public void initLevel() {
 		initIngredQuantity();
 		initIngredOrdered();
 		initOrders();
 	}
 
-	public void getOrders() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Find if two orders are the same
+	 * 
+	 * @param o1
+	 * @param o2
+	 * @return true if two orders are the same
+	 */
+	public boolean sameOrders(Order o1, Order o2) {
+		if (o1 != null && o2 != null) {
+			return o1.getSushi().getSushiName() == o2.getSushi().getSushiName();
+		}
+		return false;
+	}
+
+	/**
+	 * Get the customers' orders
+	 * 
+	 * @throws AWTException
+	 */
+	public void findCurrentOrders(Robot robot) {
 		int tmp = -1;
 		System.out.print("current : ");
 		for (int i = 0; i < maxCustomers; i++) {
@@ -192,13 +236,9 @@ public class Chef {
 		// Print finish
 	}
 
-	public boolean sameOrders(Order o1, Order o2) {
-		if (o1 != null && o2 != null) {
-			return o1.getSushi().getSushiName() == o2.getSushi().getSushiName();
-		}
-		return false;
-	}
-
+	/**
+	 * Find the new orders
+	 */
 	public void findAddedOrders() {
 		System.out.print("added : ");
 		for (int i = 0; i < 6; i++) {
@@ -216,6 +256,9 @@ public class Chef {
 		// Print finish
 	}
 
+	/**
+	 * Remove orders that have disappeared from the screen
+	 */
 	public void findRemovedOrders() {
 		System.out.print("removed : ");
 		for (int i = 0; i < 6; i++) {
@@ -233,13 +276,16 @@ public class Chef {
 		// Print finish
 	}
 
+	/**
+	 * Find orders that need to be remade
+	 */
 	public void findOrdersToRemake() {
 		System.out.print("remake : ");
 		for (int i = 0; i < 6; i++) {
 			if (currentOrders[i] != null
 					&& sameOrders(oldOrders[i], currentOrders[i])
-					&& currentOrders[i].orderPrepared() == true
-					&& currentOrders[i].anotherCustomerTookOrder()) {
+					&& currentOrders[i].getPrepared() == true
+					&& currentOrders[i].timeSuperior20()) {
 				addedOrders[i] = currentOrders[i];
 				// Print start
 				System.out
@@ -252,6 +298,9 @@ public class Chef {
 		// Print finish
 	}
 
+	/**
+	 * Update the old orders
+	 */
 	public void updateOldOrders() {
 		System.out.print("old orders : ");
 		for (int i = 0; i < 6; i++) {
@@ -264,31 +313,44 @@ public class Chef {
 		System.out.println();
 	}
 
-	public void startServing() throws AWTException {
+	/**
+	 * Set all the orders that need to be made
+	 * 
+	 */
+	public void setOrders(Robot robot) {
 		updateOldOrders();
-		getOrders();
+		findCurrentOrders(robot);
 		findAddedOrders();
 		findRemovedOrders();
 		findOrdersToRemake();
 		System.out.println("--------------------------------------------");
 	}
 
+	/**
+	 * Diminish by one an ingredient's quantity
+	 * 
+	 * @param ingred
+	 */
 	public void diminishIngredQuantity(Ingredient ingred) {
 		ingredQuantity.put(ingred, ingredQuantity.get(ingred) - 1);
 	}
 
-	public void makeOrder(Sushi sushi) throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Make an order
+	 * 
+	 * @param sushi
+	 */
+	public void makeOrder(Robot robot, Sushi sushi) {
 		HashMap<Ingredient, Integer> ingredients = sushi.getSushiIngredients();
 		for (Ingredient ingred : ingredients.keySet()) {
 			robot.mouseMove(ingred.getX(), ingred.getY());
 			if (ingredients.get(ingred) == 2) {
-				Restaurant.leftClick(robot, 10);
+				Restaurant.leftClick(robot, 4);
 				diminishIngredQuantity(ingred);
-				Restaurant.leftClick(robot, 10);
+				Restaurant.leftClick(robot, 4);
 				diminishIngredQuantity(ingred);
 			} else {
-				Restaurant.leftClick(robot, 10);
+				Restaurant.leftClick(robot, 4);
 				diminishIngredQuantity(ingred);
 			}
 		}
@@ -296,6 +358,12 @@ public class Chef {
 		Restaurant.leftClick(robot, 100);
 	}
 
+	/**
+	 * Find if there is sufficient ingredients for a particular sushi
+	 * 
+	 * @param s
+	 * @return true if there are sufficient ingredients
+	 */
 	public boolean sufficientIngred(Sushi s) {
 		HashMap<Ingredient, Integer> sushiIngredients = s.getSushiIngredients();
 		for (Ingredient i : sushiIngredients.keySet()) {
@@ -309,17 +377,16 @@ public class Chef {
 		return true;
 	}
 
-	public void makeOrders() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Make all the orders
+	 */
+	public void makeOrders(Robot robot) {
 		for (int i = maxCustomers - 1; i > -1; i--) {
 			if (currentOrders[i] == null)
 				addedOrders[i] = null;
-			if (addedOrders[i] != null && restaurant.checkMat()
+			if (addedOrders[i] != null && restaurant.checkMat(robot)
 					&& sufficientIngred(addedOrders[i].getSushi())) {
-				System.out.println(i + " "
-						+ addedOrders[i].getSushi().getSushiName());
-				System.out.println(i + " " + currentOrders[i]);
-				makeOrder(addedOrders[i].getSushi());
+				makeOrder(robot, addedOrders[i].getSushi());
 				currentOrders[i].setPreparationDate();
 				currentOrders[i].setOrderToPrepared();
 				if (i != 0)
@@ -329,8 +396,13 @@ public class Chef {
 		}
 	}
 
-	public boolean enoughCash(String s) throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Find if there is enough cash to order an ingredient
+	 * 
+	 * @param s
+	 * @return true if there is enough cash for a particular ingredient
+	 */
+	public boolean enoughCash(Robot robot, String s) {
 		Rectangle rect = new Rectangle(x, y, 640, 480);
 		BufferedImage game = robot.createScreenCapture(rect);
 		if (restaurant.findImage(game, s))
@@ -338,54 +410,65 @@ public class Chef {
 		return true;
 	}
 
-	public void orderIngredientsSteps(Ingredient i) throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Order an ingredient except rice
+	 * 
+	 * @param i
+	 */
+	public void orderIngredientsSteps(Robot robot, Ingredient i) {
 		String ingred = i.getName();
 		robot.mouseMove(restaurant.getPhoneButton().getX(), restaurant
 				.getPhoneButton().getY());
-		Restaurant.leftClick(robot, 100);
+		Restaurant.leftClick(robot, 70);
 		robot.mouseMove(restaurant.getToppingButton().getX(), restaurant
 				.getToppingButton().getY());
-		Restaurant.leftClick(robot, 100);
-		if (enoughCash("cant_afford_" + ingred + ".png")) {
+		Restaurant.leftClick(robot, 70);
+		if (enoughCash(robot, "cant_afford_" + ingred + ".png")) {
 			robot.mouseMove(i.getOrderCoordX(), i.getOrderCoordY());
-			Restaurant.leftClick(robot, 100);
+			Restaurant.leftClick(robot, 70);
 			robot.mouseMove(restaurant.getNormalDeliveryButton().getX(),
 					restaurant.getNormalDeliveryButton().getY());
-			Restaurant.leftClick(robot, 100);
+			Restaurant.leftClick(robot, 70);
 			i.setOrderDate();
 			ingredOrdered.put(i, true);
 		} else {
 			robot.mouseMove(restaurant.getCancelPhoneButton().getX(),
 					restaurant.getCancelPhoneButton().getY());
-			Restaurant.leftClick(robot, 100);
+			Restaurant.leftClick(robot, 4);
 		}
 	}
 
-	public void orderRiceSteps() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * Order rice
+	 */
+	public void orderRiceSteps(Robot robot) {
 		robot.mouseMove(restaurant.getPhoneButton().getX(), restaurant
 				.getPhoneButton().getY());
-		Restaurant.leftClick(robot, 100);
+		Restaurant.leftClick(robot, 70);
 		robot.mouseMove(restaurant.getRice1Button().getX(), restaurant
 				.getRice1Button().getY());
-		Restaurant.leftClick(robot, 100);
-		if (enoughCash("cant_afford_rice.png")) {
+		Restaurant.leftClick(robot, 70);
+		if (enoughCash(robot, "cant_afford_rice.png")) {
 			robot.mouseMove(restaurant.getRice2Button().getX(), restaurant
 					.getRice2Button().getY());
-			Restaurant.leftClick(robot, 100);
+			Restaurant.leftClick(robot, 70);
 			robot.mouseMove(restaurant.getNormalDeliveryButton().getX(),
 					restaurant.getNormalDeliveryButton().getY());
-			Restaurant.leftClick(robot, 100);
+			Restaurant.leftClick(robot, 70);
 			rice.setOrderDate();
 			ingredOrdered.put(rice, true);
 		} else {
 			robot.mouseMove(restaurant.getCancelPhoneButton().getX(),
 					restaurant.getCancelPhoneButton().getY());
-			Restaurant.leftClick(robot, 100);
+			Restaurant.leftClick(robot, 4);
 		}
 	}
 
+	/**
+	 * Update the quantity of an ingredient
+	 * 
+	 * @param i
+	 */
 	public void updateIngredQuantity(Ingredient i) {
 		String ingred = i.getName();
 		if (ingred == "rice" || ingred == "nori" || ingred == "roe") {
@@ -395,32 +478,42 @@ public class Chef {
 		}
 	}
 
-	public void orderIngredients() throws AWTException {
+	/**
+	 * Order the ingredients that have a quantity inferior to 4
+	 */
+	public void orderIngredients(Robot robot) {
 		for (Ingredient i : ingredQuantity.keySet()) {
 			String ingred = i.getName();
 			if (ingred == "rice" && ingredQuantity.get(i) < 4
 					&& !ingredOrdered.get(i)) {
-				orderRiceSteps();
+				orderRiceSteps(robot);
 			} else if (ingred != "rice" && ingredQuantity.get(i) < 4
 					&& !ingredOrdered.get(i)) {
-				orderIngredientsSteps(i);
+				orderIngredientsSteps(robot, i);
 			}
 		}
 	}
 
-	public void clickOnPlates() throws AWTException {
-		Robot robot = new Robot();
+	/**
+	 * If there is not an order being demanded click to pick up the plates
+	 */
+	public void clickOnPlates(Robot robot) {
 		for (int i = 0; i < 6; i++) {
 			if (currentOrders[i] == null) {
 				int[] coords = {
 						83 + restaurant.getGameRegion().getX() + (i * 101),
 						restaurant.getGameRegion().getY() + 203 };
 				robot.mouseMove(coords[0], coords[1]);
-				Restaurant.leftClick(robot, 10);
+				Restaurant.leftClick(robot, 4);
 			}
 		}
 	}
 
+	/**
+	 * Get the restaurant of this chef
+	 * 
+	 * @return restaurant
+	 */
 	public Restaurant getRestaurant() {
 		return restaurant;
 	}
