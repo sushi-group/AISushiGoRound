@@ -7,6 +7,24 @@ Download the file [here](http://sourceforge.net/projects/joda-time/files/joda-ti
 - **Run the game** </br>
 Open the game [here](http://www.freearcade.com/SushiGoRound.flash/SushiGoRound.html) and wait until it is fully loaded. Then put the browser on the left or the right side of the screen. On the other side put the java source code and click run. The AI will start playing the game.
 
+## DESCRIPTION
+The artificial intelligence is divided in 6 classes. The class StartServing is the class that contains the main method and that uses all the other classes to run the program.
+### Element
+This is simple class that is used to represent an element with two coordinates.
+### Ingredient
+This class represents the ingredients that we use to create a sushi. For an ingredient we need its order coordinates, its name and its order date.
+### Sushi
+This class representes all the sushis. Pictures of these sushis are saved in the project, so we need an attribute String that has the same name as the picture. Also, there a string with the exact name of the sushi and an HashMap with its ingredients. Finally, there is boolean that is needed to know if we have enough ingredients to create this sushi.
+### Order
+### Restaurant
+### Chef
+
 ## CONTACTS
 **Dimitrios Christaras-Papageorgiou** </br>
-Email: dimitris_xx@hotmail.com </br>
+Email:  dimitris_xx@hotmail.com</br>
+**Cheikh Ndiaye** </br>
+Email:  </br>
+**Ismail Boukili** </br>
+Email:  </br>
+**Hamza Gounteti** </br>
+Email:  </br>
