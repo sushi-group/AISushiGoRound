@@ -1,5 +1,12 @@
 import org.joda.time.DateTime;
 
+/**
+ * Ingredient.java Purpose: Represent an ingredient
+ * 
+ * @author Ismail Boukili, Dimitrios Christaras-Papageorgiou, Hamza Gounteti,
+ *         Cheikh Ndiaye
+ * @version 1.0 27/04/2015
+ */
 public class Ingredient extends Element {
 
 	private String name;
@@ -14,11 +21,19 @@ public class Ingredient extends Element {
 		this.orderDate = 0;
 	}
 
+	/**
+	 * Set the order date of this ingredient
+	 */
 	public void setOrderDate() {
 		DateTime date = new DateTime();
 		orderDate = date.secondOfDay().get();
 	}
 
+	/**
+	 * Finds if the order of this ingredient has been completed
+	 * 
+	 * @return true if the order has been completed
+	 */
 	public boolean ingredOrderCompleted() {
 		DateTime d = new DateTime();
 		int date = d.secondOfDay().get();
@@ -27,19 +42,40 @@ public class Ingredient extends Element {
 		return false;
 	}
 
+	/**
+	 * Set the coordinates in order to make the order
+	 * 
+	 * @param x
+	 * @param y
+	 */
 	public void setOrderCoords(int x, int y) {
 		orderCoordX = x;
 		orderCoordY = y;
 	}
 
+	/**
+	 * Get the coordinate x of the order
+	 * 
+	 * @return orderCoordX
+	 */
 	public int getOrderCoordX() {
 		return orderCoordX;
 	}
 
+	/**
+	 * Get the coordinate y of the order
+	 * 
+	 * @return orderCoordY
+	 */
 	public int getOrderCoordY() {
 		return orderCoordY;
 	}
 
+	/**
+	 * Get the name of the ingredient
+	 * 
+	 * @return
+	 */
 	public String getName() {
 		return name;
 	}
