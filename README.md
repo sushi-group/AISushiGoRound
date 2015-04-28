@@ -1,5 +1,5 @@
 # Artificial Intelligence for the game Sushi Go Round Version 1.0 27/04/2015
-
+This A.I. wins all the levels with a score more than 50000.
 ## GENERAL USAGE NOTES
 
 - **Install the joda time library** </br>
