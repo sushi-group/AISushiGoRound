@@ -25,13 +25,13 @@ This class implements all the actions that we do : get the orders of the custome
 This is the class that contains the main method and that uses all the other classes to run the program.
 ## CONTACTS
 **Dimitrios Christaras-Papageorgiou** </br>
-Email:  dimitris_xx@hotmail.com</br>
+Email:  dimitris_xx (at) hotmail (dot) com</br>
 **Cheikh Ndiaye** </br>
-Email:  mr-tagabunt@hotmail.fr</br>
+Email:  mr-tagabunt (at) hotmail (dot) fr</br>
 **Ismail Boukili** </br>
 Email:  </br>
 **Hamza Gounteti** </br>
-Email: gounteti16@gmail.com  </br>
+Email: gounteti16 (at) gmail (dot) com  </br>
 ## LICENSE
 Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
